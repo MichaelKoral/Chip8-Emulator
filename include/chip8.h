@@ -1,13 +1,20 @@
-#define STACK_SIZE 4096
-#define NUMBER_OF_REGISTERS 0xFu
+#define MEMORY_SIZE 0x1000
+#define STACK_SIZE 0x10
+#define NUMBER_OF_REGISTERS 0x10
 #define PROGRAM_START 0x200u
-typedef char byte;
-typedef struct chip_state {
-  byte stack[STACK_SIZE];
-  byte general_regs[NUMBER_OF_REGISTERS];  
-  byte I_reg[2]; 
-  byte DT_reg;
-  byte ST_reg;
-  byte PC_reg;
-  byte SP_reg;
-} chip_state;
+#include <stdint.h>
+typedef uint8_t byte;
+typedef uint16_t word;
+typedef struct chipState {
+  byte memory[MEMORY_SIZE];
+  word stack[STACK_SIZE];
+  byte generalRegs[NUMBER_OF_REGISTERS];  
+  word I; 
+  word PC;
+  byte DT;
+  byte ST;
+  byte SP;
+} chipState;
+
+
+void execute(uint16_t instr);

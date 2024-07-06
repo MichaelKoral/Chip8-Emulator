@@ -7,4 +7,8 @@ typedef struct Pixel {
   SDL_Rect rect;
   int on;
 } Pixel ;
-void main_loop();
+
+void initDisplay();
+void render();
+void displayCleanup();
+void setPixels(int newPixels[64][32]);
