@@ -1,3 +1,6 @@
+#ifndef DISPLAY_H
+#define DISPLAY_H
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_render.h>
@@ -11,4 +14,7 @@ typedef struct Pixel {
 void initDisplay();
 void render();
 void displayCleanup();
-void setPixels(int newPixels[64][32]);
+void setPixel(int i, int j, int val);
+int getPixel(int i, int j);
+
+#endif

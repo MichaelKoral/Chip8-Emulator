@@ -32,9 +32,7 @@ void initPixels() {
       pixel->rect.w = 10;
       pixel->rect.x = i * 10;
       pixel->rect.y = j * 10;
-      if(i % 2 == 0) {
-        pixel->on = 1;
-      }
+      pixel->on = 0;
     }
   }
 }
@@ -44,15 +42,13 @@ void displayCleanup() {
   SDL_DestroyWindow(window);
   SDL_Quit();
 }
-void setPixels(int newPixels[64][32]) {
-  for(int i = 0; i < 64; ++i) {
-    for(int j = 0; j < 32; ++j) {
-      pixels[i+(j*64)].on = newPixels[i][j];
-    }
-  }
+void setPixel(int i, int j, int val) {
+      pixels[i+(j*64)].on = val;
+}
+int getPixel(int i, int j) {
+      return pixels[i+(j*64)].on;
 }
 void render() {
-#if 1
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -65,18 +61,6 @@ void render() {
       }
     } 
     SDL_RenderPresent(renderer);
-#else 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-    SDL_Rect rect;
-    rect.x = 0;
-    rect.y = 0;
-    rect.h = 10;
-    rect.w = 10;
-    SDL_RenderFillRect(renderer, &rect);
-    SDL_RenderPresent(renderer);
-#endif
 }
 void initDisplay() {
   initSDL();
