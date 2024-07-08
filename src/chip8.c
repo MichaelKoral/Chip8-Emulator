@@ -5,16 +5,29 @@
 #include <chip8.h>
 #include <display.h>
 #include <sprites.h>
+#include <input.h>
 
-chipState state;
+ChipState state;
+uint32_t resumeRegister;
 void clearPixels();
 void displaySprite(uint32_t n, uint32_t x, uint32_t y);
+ChipState getState() {
+  return state;
+}
+int isPaused() {
+  return state.paused;
+}
+void resumeChip(int key) {
+  state.generalRegs[resumeRegister] = key;
+  state.paused = 0;
+}
 void initChip8() {
   srand(time(NULL));
-  memset(&state, 0, sizeof(chipState));
+  memset(&state, 0, sizeof(ChipState));
   memcpy(state.memory, sprites, sizeof(sprites));  
+  resumeRegister = 0;
 }
-void execute(uint16_t instr) {
+void execute(word instr) {
   uint16_t addr = ((1<<12)-1) & instr; //lower 3 bytes
   uint16_t N = (((1<<4)-1)<<12 & instr) >> 12; //higher nibble
   uint16_t n = ((1<<4)-1) & instr; //lower nibble
@@ -120,10 +133,14 @@ void execute(uint16_t instr) {
     displaySprite(n, state.generalRegs[x], state.generalRegs[y]);
   }
   else if(N == 0xE && y == 0x9) { // Ex9E - SKP Vx Skip next instruction if key with the value of Vx is pressed.
-    // TODO keyboard inputs
+    if(isKeyPressed(state.generalRegs[x])) {
+      state.PC++;
+    }
   }
   else if(N == 0xE && y == 0xA) { // ExA1 - SKNP Vx Skip next instruction if key with the value of Vx is not pressed.
-    //TODO keyboard inputs
+    if(!isKeyPressed(state.generalRegs[x])) {
+      state.PC++;
+    }
   }
   else if(N == 0xF) {
     byte lowerByte = (y<<4)+n;
@@ -131,7 +148,8 @@ void execute(uint16_t instr) {
       state.generalRegs[x] = state.DT;
     }
     else if(lowerByte == 0x0A) { // Fx0A - LD Vx, K Wait for a key press, store the value of the key in Vx.
-      //TODO keyboard inputs
+      state.paused = 1;
+      resumeRegister = x;
     }
     else if(lowerByte == 0x15) { // Fx15 - LD DT, Vx Set delay timer = Vx.
       state.DT = state.generalRegs[x];

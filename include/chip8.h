@@ -9,7 +9,7 @@
 #include <stdint.h>
 typedef uint8_t byte;
 typedef uint16_t word;
-typedef struct chipState {
+typedef struct ChipState {
   byte memory[MEMORY_SIZE];
   word stack[STACK_SIZE];
   byte generalRegs[NUMBER_OF_REGISTERS];  
@@ -18,7 +18,11 @@ typedef struct chipState {
   byte DT;
   byte ST;
   byte SP;
-} chipState;
+  byte paused;
+} ChipState;
 void execute(word instr);
 void initChip8();
+int isPaused();
+void resumeChip(int key);
+
 #endif
