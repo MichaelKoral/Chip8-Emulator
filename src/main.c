@@ -9,19 +9,12 @@
 #include <chip8.h>
 #include <display.h>
 #include <input.h>
+#include <reader.h>
 
 void mainLoop() {
 
   int running = 1;
   SDL_Event event;
-  word instr[5] = {
-    0x6004,
-    0x6101,
-    0x6201,
-    0xF029,
-    0xD120+SPRITE_STRIDE,
-  };
-  int pc = 0;
   while(running) {
     while(SDL_PollEvent(&event)) {
       if(event.type == SDL_QUIT) {
@@ -47,18 +40,34 @@ void mainLoop() {
     if(isPaused()) {
       continue;
     }
-    if(pc<5) {
-      execute(instr[pc]);
-      pc++;
+    word instr = loadInstruction();
+    printf("Instruction: %x\n", instr);
+    fflush(stdout);
+    if(instr != 0x0000) {
+      printf("%x\n",instr);
+      execute(instr);
     }
     render();
   }
 }
 int main() {
-
   initDisplay();
   initChip8();
+  word instr[5] = {
+    0x6004,
+    0x6101,
+    0x6201,
+    0xF029,
+    0xD120+SPRITE_STRIDE,
+  };
+  word* program = NULL;
+  const char* path = "test/test_opcode.ch8";
+  uint32_t programSize = readFile(program, path);
+  printf("%s loaded as %d instructions\n", path, programSize);
+  fflush(stdout);
+  loadProgram(program, programSize);
   mainLoop();
   displayCleanup();
+  free(program);
   return 0;
 }

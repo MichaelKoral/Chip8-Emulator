@@ -9,6 +9,7 @@
 
 ChipState state;
 uint32_t resumeRegister;
+uint32_t programEnd;
 void clearPixels();
 void displaySprite(uint32_t n, uint32_t x, uint32_t y);
 ChipState getState() {
@@ -26,6 +27,7 @@ void initChip8() {
   memset(&state, 0, sizeof(ChipState));
   memcpy(state.memory, sprites, sizeof(sprites));  
   resumeRegister = 0;
+  state.PC = 0x200;
 }
 void execute(word instr) {
   uint16_t addr = ((1<<12)-1) & instr; //lower 3 bytes
@@ -49,17 +51,17 @@ void execute(word instr) {
   }
   else if(N == 0x3) { //3xkk - SE Vx, byte Skip next instruction if Vx = kk.
     if(state.generalRegs[x] == ((y<<4)+n)) {
-      state.PC++;
+      state.PC += sizeof(word);
     }
   }
   else if(N == 0x4) { // 4xkk - SNE Vx, byte Skip next instruction if Vx != kk.
     if(state.generalRegs[x] != ((y<<4)+n)) {
-      state.PC++;
+      state.PC += sizeof(word);
     }
   }
   else if(N == 0x5) { // 5xy0 - SE Vx, Vy Skip next instruction if Vx = Vy.
     if(state.generalRegs[x] == state.generalRegs[y]) {
-      state.PC++;
+      state.PC += sizeof(word);
     }
   }
   else if(N == 0x6) { // 6xkk - LD Vx, byte Set Vx = kk.
@@ -117,7 +119,7 @@ void execute(word instr) {
   }
   else if(N == 0x9) { // 9xy0 - SNE Vx, Vy Skip next instruction if Vx != Vy.
     if(state.generalRegs[x] != state.generalRegs[y]) {
-      state.PC++;
+      state.PC += sizeof(word);
     }
   }
   else if(N == 0xA) { // Annn - LD I, addr Set I = nnn.
@@ -134,12 +136,12 @@ void execute(word instr) {
   }
   else if(N == 0xE && y == 0x9) { // Ex9E - SKP Vx Skip next instruction if key with the value of Vx is pressed.
     if(isKeyPressed(state.generalRegs[x])) {
-      state.PC++;
+      state.PC += sizeof(word);
     }
   }
   else if(N == 0xE && y == 0xA) { // ExA1 - SKNP Vx Skip next instruction if key with the value of Vx is not pressed.
     if(!isKeyPressed(state.generalRegs[x])) {
-      state.PC++;
+      state.PC += sizeof(word);
     }
   }
   else if(N == 0xF) {
@@ -179,6 +181,7 @@ void execute(word instr) {
       }
     }
   }
+  state.PC += sizeof(word);
 }
 
 void clearPixels() {
@@ -190,7 +193,6 @@ void clearPixels() {
 }
 
 void displaySprite(uint32_t n, uint32_t x, uint32_t y) {
-  //printf("n: %x, x: %x, y: %x", n, x, y);
   for(int j = 0; j < n; ++j) {
     byte val = state.memory[state.I+j]; 
     for(int i = 0; i < 8; ++i) { // max sprite row width is 8
@@ -202,4 +204,12 @@ void displaySprite(uint32_t n, uint32_t x, uint32_t y) {
       setPixel(row, col, getPixel(row, col) ^ (val & (1<<(7-i))));
     }
   }
+}
+void loadProgram(word* code, uint32_t size) {
+  memcpy(&state.memory[0x200], code, size*sizeof(word)); 
+  programEnd = 0x200+size*sizeof(word); 
+}
+word loadInstruction() {
+  if(programEnd == state.PC) return 0x0000;
+  return (word)state.memory[state.PC]+(state.memory[state.PC+1]<<8);
 }
