@@ -62,7 +62,7 @@ int main() {
   };
   word* program = NULL;
   const char* path = "test/test_opcode.ch8";
-  uint32_t programSize = readFile(program, path);
+  uint32_t programSize = readFile(&program, path);
   printf("%s loaded as %d instructions\n", path, programSize);
   fflush(stdout);
   loadProgram(program, programSize);
