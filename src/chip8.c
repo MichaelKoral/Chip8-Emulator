@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
+#include <arpa/inet.h>
 
 #include <chip8.h>
 #include <display.h>
@@ -36,6 +37,7 @@ void execute(word instr) {
   uint16_t x = (((1<<4)-1)<<8 & instr)>>8; //lower nibble of high byte
   uint16_t y = (((1<<4)-1)<<4 & instr)>>4; //higher nibble of low byte
 
+#if 1
   if(instr == 0x00E0) { // 00E0 - CLS Clear the display.
     clearPixels();
   }
@@ -181,6 +183,7 @@ void execute(word instr) {
       }
     }
   }
+#endif
   state.PC += sizeof(word);
 }
 
@@ -212,4 +215,7 @@ void loadProgram(word* code, uint32_t size) {
 word loadInstruction() {
   if(programEnd == state.PC) return 0x0000;
   return (word)state.memory[state.PC]+(state.memory[state.PC+1]<<8);
+}
+void pauseChip() {
+  state.paused = 1;
 }

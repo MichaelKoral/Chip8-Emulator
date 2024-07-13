@@ -26,6 +26,7 @@ int isPaused();
 void resumeChip(int key);
 void loadProgram(word* code, uint32_t size);
 word loadInstruction();
+void pauseChip();
 
 
 

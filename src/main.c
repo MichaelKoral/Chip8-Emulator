@@ -15,6 +15,7 @@ void mainLoop() {
 
   int running = 1;
   SDL_Event event;
+  uint64_t cycleCount = 0;
   while(running) {
     while(SDL_PollEvent(&event)) {
       if(event.type == SDL_QUIT) {
@@ -38,16 +39,17 @@ void mainLoop() {
       }
     }
     if(isPaused()) {
+      pauseChip();
       continue;
     }
     word instr = loadInstruction();
-    printf("Instruction: %x\n", instr);
-    fflush(stdout);
     if(instr != 0x0000) {
-      printf("%x\n",instr);
+      printf("Instruction: %x\n", instr);
+      fflush(stdout);
       execute(instr);
     }
     render();
+    cycleCount++;
   }
 }
 int main() {
@@ -61,7 +63,8 @@ int main() {
     0xD120+SPRITE_STRIDE,
   };
   word* program = NULL;
-  const char* path = "test/test_opcode.ch8";
+  //const char* path = "test/1-chip8-logo.ch8";
+  const char* path = "test/1-chip8-logo.ch8";
   uint32_t programSize = readFile(&program, path);
   printf("%s loaded as %d instructions\n", path, programSize);
   fflush(stdout);
