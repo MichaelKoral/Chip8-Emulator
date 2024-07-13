@@ -43,9 +43,13 @@ void mainLoop() {
     }
     word instr = decodeInstruction(loadInstruction());
     if(instr != 0x0000) {
-      printf("Instruction: %x\n", instr);
+      printf("Instruction: %x Cycle: %x\n", instr, cycleCount);
       fflush(stdout);
       execute(instr);
+    } else {
+      printf("Done\n");
+      fflush(stdout);
+      pauseChip();
     }
     render();
     cycleCount++;
@@ -62,8 +66,8 @@ int main() {
     0xD120+SPRITE_STRIDE,
   };
   byte* program = NULL;
-  const char* path = "test/1-chip8-logo.ch8";
-  //const char* path = "test/test_opcode.ch8";
+  //const char* path = "test/1-chip8-logo.ch8";
+  const char* path = "test/test_opcode.ch8";
   uint32_t programSize = readFile(&program, path);
   printf("%s loaded as %d instructions\n", path, programSize);
   fflush(stdout);

@@ -30,6 +30,7 @@ void initChip8() {
   state.PC = 0x200;
 }
 void execute(word instr) {
+  printf("Instr Loc: %x\n", state.PC);
   uint16_t addr = ((1<<12)-1) & instr; //lower 3 bytes
   uint16_t N = (((1<<4)-1)<<12 & instr) >> 12; //higher nibble
   uint16_t n = ((1<<4)-1) & instr; //lower nibble
@@ -41,14 +42,16 @@ void execute(word instr) {
     clearPixels();
   }
   else if(instr == 0x00EE) { // 00EE - RET Return from a subroutine.
-    state.PC = state.stack[state.SP--];
+    state.PC = state.stack[--state.SP];
   }
   else if(N == 0x1) { // 1nnn - JP addr Jump to location nnn. 
     state.PC = addr;
+    return;
   }
   else if(N == 0x2) { // 2nnn - CALL addr Call subroutine at nnn.
     state.stack[state.SP++] = state.PC;
     state.PC = addr;
+    return;
   }
   else if(N == 0x3) { //3xkk - SE Vx, byte Skip next instruction if Vx = kk.
     if(state.generalRegs[x] == ((y<<4)+n)) {
@@ -79,10 +82,10 @@ void execute(word instr) {
       state.generalRegs[x] |= state.generalRegs[y];
     }
     else if(n == 0x2) { // 8xy2 - AND Vx, Vy Set Vx = Vx AND Vy.
-      state.generalRegs[x] ^= state.generalRegs[y];
+      state.generalRegs[x] &= state.generalRegs[y];
     }
     else if(n == 0x3) { // 8xy3 - XOR Vx, Vy Set Vx = Vx XOR Vy.
-      state.generalRegs[x] &= state.generalRegs[y];
+      state.generalRegs[x] ^= state.generalRegs[y];
     }
     else if(n == 0x4) { // 8xy4 - ADD Vx, Vy Set Vx = Vx + Vy, set VF = carry.
       uint32_t result = ((int)state.generalRegs[x]) + state.generalRegs[y];
@@ -111,7 +114,7 @@ void execute(word instr) {
       }
       state.generalRegs[x] = ((1<<8)-1) & result;
     }
-    else if(n == 0x14) { // 8xyE - SHL Vx {, Vy} Set Vx = Vx SHL 1.
+    else if(n == 0xE) { // 8xyE - SHL Vx {, Vy} Set Vx = Vx SHL 1.
       if((1<<7) & state.generalRegs[x]) {
         state.generalRegs[0xF] = 1;
       }
@@ -128,6 +131,7 @@ void execute(word instr) {
   }
   else if(N == 0xB) { // Bnnn - JP V0, addr Jump to location nnn + V0.
     state.PC = addr + state.generalRegs[0];
+    return;
   }
   else if(N == 0xC) { // Cxkk - RND Vx, byte Set Vx = random byte AND kk.
     state.generalRegs[x] = ((y<<4)+n) & (((uint32_t)rand())%256);
