@@ -24,9 +24,10 @@ void execute(word instr);
 void initChip8();
 int isPaused();
 void resumeChip(int key);
-void loadProgram(word* code, uint32_t size);
+void loadProgram(byte* code, uint32_t size);
 word loadInstruction();
 void pauseChip();
+word decodeInstruction(word instr);
 
 
 

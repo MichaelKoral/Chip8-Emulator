@@ -1,7 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
-#include <arpa/inet.h>
 
 #include <chip8.h>
 #include <display.h>
@@ -208,9 +207,9 @@ void displaySprite(uint32_t n, uint32_t x, uint32_t y) {
     }
   }
 }
-void loadProgram(word* code, uint32_t size) {
-  memcpy(&state.memory[0x200], code, size*sizeof(word)); 
-  programEnd = 0x200+size*sizeof(word); 
+void loadProgram(byte* code, uint32_t size) {
+  memcpy(&state.memory[0x200], code, size); 
+  programEnd = 0x200+size; 
 }
 word loadInstruction() {
   if(programEnd == state.PC) return 0x0000;
@@ -218,4 +217,7 @@ word loadInstruction() {
 }
 void pauseChip() {
   state.paused = 1;
+}
+word decodeInstruction(word instr) {
+  return (instr & 0xFF00) >> 8 | (instr & 0x00FF) << 8;
 }

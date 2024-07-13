@@ -1,2 +1,2 @@
 #include <chip8.h>
-uint32_t readFile(word** data, const char* path);
+uint32_t readFile(byte** data, const char* path);

@@ -1,6 +1,7 @@
 #include <reader.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void swapEndianness(word data[], uint32_t size) {
   for(int i = 0; i < size; ++i) {
@@ -8,14 +9,14 @@ void swapEndianness(word data[], uint32_t size) {
   }
 }
 
-uint32_t readFile(word** data, const char* path) {
+uint32_t readFile(byte** data, const char* path) {
   FILE* file = fopen(path, "rb");
   fseek(file, 0, SEEK_END);
   uint32_t size = ftell(file);
   fseek(file, 0, SEEK_SET);
-  *data = (word*)malloc(size);
-  uint32_t instrCount = fread(*data, sizeof(word), size/sizeof(word), file); 
-  swapEndianness(*data, instrCount);
+  *data = (byte*)malloc(size);
+  memset(*data, 0, size);
+  uint32_t instrCount = fread(*data, 1, size, file); 
   return instrCount;
 }
 

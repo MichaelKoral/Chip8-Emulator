@@ -39,10 +39,9 @@ void mainLoop() {
       }
     }
     if(isPaused()) {
-      pauseChip();
       continue;
     }
-    word instr = loadInstruction();
+    word instr = decodeInstruction(loadInstruction());
     if(instr != 0x0000) {
       printf("Instruction: %x\n", instr);
       fflush(stdout);
@@ -62,9 +61,9 @@ int main() {
     0xF029,
     0xD120+SPRITE_STRIDE,
   };
-  word* program = NULL;
-  //const char* path = "test/1-chip8-logo.ch8";
+  byte* program = NULL;
   const char* path = "test/1-chip8-logo.ch8";
+  //const char* path = "test/test_opcode.ch8";
   uint32_t programSize = readFile(&program, path);
   printf("%s loaded as %d instructions\n", path, programSize);
   fflush(stdout);
