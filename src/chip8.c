@@ -37,7 +37,6 @@ void execute(word instr) {
   uint16_t x = (((1<<4)-1)<<8 & instr)>>8; //lower nibble of high byte
   uint16_t y = (((1<<4)-1)<<4 & instr)>>4; //higher nibble of low byte
 
-#if 1
   if(instr == 0x00E0) { // 00E0 - CLS Clear the display.
     clearPixels();
   }
@@ -176,17 +175,16 @@ void execute(word instr) {
       state.memory[state.I+2] = state.generalRegs[x]%10;
     }
     else if (lowerByte == 0x55) { // Fx55 - LD [I], Vx Store registers V0 through Vx in memory starting at location I.
-      for(int i = 0; i < x; ++i) {
+      for(int i = 0; i <= x; ++i) {
         state.memory[state.I+i] = state.generalRegs[i];
       }
     }
     else if(lowerByte == 0x65) { // Fx65 - LD Vx, [I] Read registers V0 through Vx from memory starting at location I.
-      for(int i = 0; i < x; ++i) { 
+      for(int i = 0; i <= x; ++i) { 
         state.generalRegs[i] = state.memory[state.I+i];
       }
     }
   }
-#endif
   state.PC += sizeof(word);
 }
 
@@ -224,4 +222,13 @@ void pauseChip() {
 }
 word decodeInstruction(word instr) {
   return (instr & 0xFF00) >> 8 | (instr & 0x00FF) << 8;
+}
+void decrementTimers() {
+  if(state.DT>0) 
+    state.DT--;
+  if(state.ST>0) 
+    state.ST--;
+}
+int isSoundTimerActive() {
+  return state.ST;
 }

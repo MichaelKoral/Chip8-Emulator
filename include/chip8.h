@@ -28,6 +28,8 @@ void loadProgram(byte* code, uint32_t size);
 word loadInstruction();
 void pauseChip();
 word decodeInstruction(word instr);
+void decrementTimers();
+int isSoundTimerActive();
 
 
 
