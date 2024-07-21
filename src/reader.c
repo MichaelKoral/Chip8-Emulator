@@ -6,6 +6,11 @@
 
 uint32_t readFile(byte** data, const char* path) {
   FILE* file = fopen(path, "rb");
+  if(file == NULL) {
+    printf("Could not find file %s\n", path);
+    fflush(stdout);
+    exit(1);
+  }
   fseek(file, 0, SEEK_END);
   uint32_t size = ftell(file);
   fseek(file, 0, SEEK_SET);

@@ -87,37 +87,31 @@ void execute(word instr) {
       state.generalRegs[x] ^= state.generalRegs[y];
     }
     else if(n == 0x4) { // 8xy4 - ADD Vx, Vy Set Vx = Vx + Vy, set VF = carry.
-      uint32_t result = ((int)state.generalRegs[x]) + state.generalRegs[y];
-      if(result >= 255) {
-        state.generalRegs[0xF] = 1;
-      }
+      uint32_t result = ((uint32_t)state.generalRegs[x]) + state.generalRegs[y];
       state.generalRegs[x] = ((1<<8)-1) & result;
+      state.generalRegs[0xF] = result > 255 ? 1 : 0;
     }
     else if(n == 0x5) { // 8xy5 - SUB Vx, Vy Set Vx = Vx - Vy, set VF = NOT borrow.
       uint32_t result = ((uint32_t)state.generalRegs[x]) - state.generalRegs[y];
-      if(state.generalRegs[x] > state.generalRegs[y]) {
-        state.generalRegs[0xF] = 1;
-      }
+      uint8_t vfResult = state.generalRegs[x] >= state.generalRegs[y];
       state.generalRegs[x] = ((1<<8)-1) & result;
+      state.generalRegs[0xF] = vfResult;
     }
     else if(n == 0x6) { // 8xy6 - SHR Vx {, Vy} Set Vx = Vx SHR 1.
-      if(1 & state.generalRegs[x]) {
-        state.generalRegs[0xF] = 1;
-      }
-      state.generalRegs[x] /= 2;
+      uint8_t vfResult = 1 & state.generalRegs[x];
+      state.generalRegs[x] >>= 1;
+      state.generalRegs[0xF] = vfResult;
     }
     else if(n == 0x7) { // 8xy7 - SUBN Vx, Vy Set Vx = Vy - Vx, set VF = NOT borrow.
       uint32_t result = ((uint32_t)state.generalRegs[y]) - state.generalRegs[x];
-      if(state.generalRegs[y] > state.generalRegs[x]) {
-        state.generalRegs[0xF] = 1;
-      }
+      uint8_t vfResult = state.generalRegs[y] >= state.generalRegs[x];
       state.generalRegs[x] = ((1<<8)-1) & result;
+      state.generalRegs[0xF] = vfResult;
     }
     else if(n == 0xE) { // 8xyE - SHL Vx {, Vy} Set Vx = Vx SHL 1.
-      if((1<<7) & state.generalRegs[x]) {
-        state.generalRegs[0xF] = 1;
-      }
-      state.generalRegs[x] *= 2;
+      uint8_t vfResult = ((1<<7) & state.generalRegs[x])>>7;
+      state.generalRegs[x] <<= 1;
+      state.generalRegs[0xF] = vfResult;
     }
   }
   else if(N == 0x9) { // 9xy0 - SNE Vx, Vy Skip next instruction if Vx != Vy.
@@ -197,17 +191,19 @@ void clearPixels() {
 }
 
 void displaySprite(uint32_t n, uint32_t x, uint32_t y) {
+  uint8_t vfResult = 0;
   for(int j = 0; j < n; ++j) {
     byte val = state.memory[state.I+j]; 
     for(int i = 0; i < 8; ++i) { // max sprite row width is 8
-      int row = i+x < 64 ? i+x : i+x-64;
-      int col = j+y < 32 ? j+y : j+y-32;
+      int row = (i+x)%64;
+      int col = (j+y)%32;
       if(getPixel(row, col) && (val & (1<<(7-i)))) {
-        state.memory[0xF] = 1;
+        vfResult = 1;
       }
       setPixel(row, col, getPixel(row, col) ^ (val & (1<<(7-i))));
     }
   }
+  state.generalRegs[0xF] = vfResult;
 }
 void loadProgram(byte* code, uint32_t size) {
   memcpy(&state.memory[0x200], code, size); 

@@ -83,8 +83,8 @@ int main(int argc, char* argv[]) {
   if(argc > 1) {
     path = argv[1];
   } else {
-    path = "test/test_opcode.ch8";
-    //path = "test/1-chip8-logo.ch8";
+    printf("No path specified");
+    return 1;
   }
   
   uint32_t programSize = readFile(&program, path);
