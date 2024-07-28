@@ -198,10 +198,11 @@ void displaySprite(uint32_t n, uint32_t x, uint32_t y) {
     for(int i = 0; i < 8; ++i) { // max sprite row width is 8
       int row = (i+x)%64;
       int col = (j+y)%32;
-      if(getPixel(row, col) && (val & (1<<(7-i)))) {
+      int bit = (val & (1<<(7-i)))>>(7-i);
+      if(getPixel(row, col) && bit) {
         vfResult = 1;
       }
-      setPixel(row, col, getPixel(row, col) ^ (val & (1<<(7-i))));
+      setPixel(row, col, getPixel(row, col) ^ bit);
     }
   }
   state.generalRegs[0xF] = vfResult;

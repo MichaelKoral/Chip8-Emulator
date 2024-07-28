@@ -15,7 +15,7 @@
 #include <sound.h>
 
 #define TIMER_RATE 60
-#define CLOCK_RATE 1200
+#define CLOCK_RATE 800
 #define NANOSECONDS 1000000000lu
 
 void mainLoop() {
@@ -45,7 +45,9 @@ void mainLoop() {
         releaseKey(event.key.keysym.sym);      
       }
     }
-    word instr = decodeInstruction(loadInstruction());
+    word loadedInstr = loadInstruction();
+    word instr = decodeInstruction(loadedInstr);
+   // word instr = loadedInstr;
     struct timespec time;
     timespec_get(&time, TIME_UTC);
     deltaTime.tv_sec = time.tv_sec-previousTime.tv_sec;
