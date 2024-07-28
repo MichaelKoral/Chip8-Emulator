@@ -16,5 +16,7 @@ void render();
 void displayCleanup();
 void setPixel(int i, int j, int val);
 int getPixel(int i, int j);
+void initSDL();
+void SDLCleanup();
 
 #endif

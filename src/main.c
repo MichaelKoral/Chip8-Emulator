@@ -12,9 +12,10 @@
 #include <display.h>
 #include <input.h>
 #include <reader.h>
+#include <sound.h>
 
 #define TIMER_RATE 60
-#define CLOCK_RATE 600
+#define CLOCK_RATE 1200
 #define NANOSECONDS 1000000000lu
 
 void mainLoop() {
@@ -44,9 +45,6 @@ void mainLoop() {
         releaseKey(event.key.keysym.sym);      
       }
     }
-    if(isPaused()) {
-      continue;
-    }
     word instr = decodeInstruction(loadInstruction());
     struct timespec time;
     timespec_get(&time, TIME_UTC);
@@ -57,27 +55,30 @@ void mainLoop() {
       nanosleep(&deltaTime, &deltaTime);//doesn't work on windows 
     }
     if(isSoundTimerActive()) {
-      //play sound
+      playSound();
     }
     if(cycleCount%cyclesForTimer) {
       decrementTimers();
+      if(isSoundTimerActive()) {
+        printf("test");
+      }
     }
-    if(instr != 0x0000) {
+
+    if(!isPaused() && instr != 0x0000) {
       printf("Instruction: %x Cycle: %x\n", instr, (unsigned int)cycleCount);
       fflush(stdout);
       execute(instr);
-    } else {
-      printf("Done\n");
-      fflush(stdout);
-      pauseChip();
     }
     render();
     cycleCount++;
   }
 }
 int main(int argc, char* argv[]) {
+  initSDL();
   initDisplay();
   initChip8();
+  initSound("sound/beep.wav");
+
   byte* program = NULL;
   char* path = NULL;
   if(argc > 1) {
@@ -86,13 +87,15 @@ int main(int argc, char* argv[]) {
     printf("No path specified");
     return 1;
   }
-  
   uint32_t programSize = readFile(&program, path);
   printf("%s loaded as %d instructions\n", path, programSize);
   fflush(stdout);
   loadProgram(program, programSize);
+
   mainLoop();
   displayCleanup();
+  soundCleanup();
+  SDLCleanup();
   free(program);
   return 0;
 }

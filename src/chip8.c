@@ -6,6 +6,7 @@
 #include <display.h>
 #include <sprites.h>
 #include <input.h>
+#include <sound.h>
 
 ChipState state;
 uint32_t resumeRegister;

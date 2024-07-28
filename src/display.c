@@ -1,3 +1,4 @@
+#include <SDL2/SDL.h>
 #include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_render.h>
@@ -10,7 +11,7 @@ SDL_Renderer* renderer = NULL;
 Pixel* pixels = NULL; 
 
 void initSDL() {
-  if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS) < 0) {
+  if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTS | SDL_INIT_AUDIO) < 0) {
     perror("ERROR: Could not initialize SDL");
   }
   if((window = SDL_CreateWindow("Chip8", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 640, 320, 0)) == NULL) {
@@ -40,7 +41,6 @@ void displayCleanup() {
   free(pixels);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
-  SDL_Quit();
 }
 void setPixel(int i, int j, int val) {
       pixels[i+(j*64)].on = val;
@@ -63,8 +63,10 @@ void render() {
     SDL_RenderPresent(renderer);
 }
 void initDisplay() {
-  initSDL();
   initPixels(); 
+}
+void SDLCleanup() {
+  SDL_Quit();
 }
 
 
