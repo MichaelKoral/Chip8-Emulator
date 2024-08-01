@@ -13,10 +13,12 @@
 #include <input.h>
 #include <reader.h>
 #include <sound.h>
+#include <snake.h>
 
 #define TIMER_RATE 60
 #define CLOCK_RATE 800
 #define NANOSECONDS 1000000000lu
+#define DEBUG 1
 
 void mainLoop() {
   const uint32_t clockCycleTime = NANOSECONDS/CLOCK_RATE;
@@ -45,9 +47,10 @@ void mainLoop() {
         releaseKey(event.key.keysym.sym);      
       }
     }
-    word loadedInstr = loadInstruction();
-    word instr = decodeInstruction(loadedInstr);
-   // word instr = loadedInstr;
+    word instr = loadInstruction();
+    if(!DEBUG)
+      instr = decodeInstruction(instr);
+
     struct timespec time;
     timespec_get(&time, TIME_UTC);
     deltaTime.tv_sec = time.tv_sec-previousTime.tv_sec;
@@ -85,13 +88,20 @@ int main(int argc, char* argv[]) {
   char* path = NULL;
   if(argc > 1) {
     path = argv[1];
-  } else {
-    printf("No path specified");
-    return 1;
+  } else if(!DEBUG){
+      printf("No path specified");
+      return 1;
   }
-  uint32_t programSize = readFile(&program, path);
-  printf("%s loaded as %d instructions\n", path, programSize);
-  fflush(stdout);
+  uint32_t programSize = 0;
+  if(!DEBUG) {
+    programSize = readFile(&program, path);
+    printf("%s loaded as %d instructions\n", path, programSize);
+    fflush(stdout);
+  } else {
+    program = (byte*)snakeProgram;
+    programSize = SNAKE_SIZE;
+  }
+
   loadProgram(program, programSize);
 
   mainLoop();
