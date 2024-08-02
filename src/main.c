@@ -16,7 +16,7 @@
 #include <snake.h>
 
 #define TIMER_RATE 60
-#define CLOCK_RATE 800
+#define CLOCK_RATE 60
 #define NANOSECONDS 1000000000lu
 #define DEBUG 1
 

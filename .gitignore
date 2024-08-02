@@ -3,3 +3,4 @@ out
 *.so
 compile_flags.txt
 test
+bin
