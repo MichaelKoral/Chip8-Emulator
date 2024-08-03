@@ -14,11 +14,12 @@
 #include <reader.h>
 #include <sound.h>
 #include <snake.h>
+#include <writer.h>
 
 #define TIMER_RATE 60
-#define CLOCK_RATE 60
+#define CLOCK_RATE 300
 #define NANOSECONDS 1000000000lu
-#define DEBUG 1
+#define DEBUG 0//used for testing chip8 programs 
 
 void mainLoop() {
   const uint32_t clockCycleTime = NANOSECONDS/CLOCK_RATE;
@@ -64,14 +65,10 @@ void mainLoop() {
     }
     if(cycleCount%cyclesForTimer) {
       decrementTimers();
-      if(isSoundTimerActive()) {
-        printf("test");
-      }
     }
 
     if(!isPaused() && instr != 0x0000) {
-      printf("Instruction: %x Cycle: %x\n", instr, (unsigned int)cycleCount);
-      fflush(stdout);
+      printf("Instruction: %x Cycle: %x", instr, (unsigned int)cycleCount);
       execute(instr);
     }
     render();
@@ -100,6 +97,7 @@ int main(int argc, char* argv[]) {
   } else {
     program = (byte*)snakeProgram;
     programSize = SNAKE_SIZE;
+   // writeProgramToFile(program, programSize, "snake.ch8");
   }
 
   loadProgram(program, programSize);

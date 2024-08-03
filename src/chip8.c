@@ -31,7 +31,8 @@ void initChip8() {
   state.PC = 0x200;
 }
 void execute(word instr) {
-  printf("Instr Loc: %x\n", state.PC);
+  printf(" Instr Loc: %x\n\n", state.PC);
+  fflush(stdout);
   uint16_t addr = ((1<<12)-1) & instr; //lower 3 bytes
   uint16_t N = (((1<<4)-1)<<12 & instr) >> 12; //higher nibble
   uint16_t n = ((1<<4)-1) & instr; //lower nibble

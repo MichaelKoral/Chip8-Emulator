@@ -17,6 +17,7 @@ uint32_t readFile(byte** data, const char* path) {
   *data = (byte*)malloc(size);
   memset(*data, 0, size);
   uint32_t instrCount = fread(*data, 1, size, file); 
+  fclose(file);
   return instrCount;
 }
 
