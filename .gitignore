@@ -1,6 +1,5 @@
-*.o
-out
-*.so
+bin
+lib
+obj
 compile_flags.txt
 test
-bin
