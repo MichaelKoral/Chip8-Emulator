@@ -20,3 +20,7 @@ There are couple of things missing from it
 - A losing screen
 - A score counter
 - A win condition
+
+
+Reference used:
+  http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
